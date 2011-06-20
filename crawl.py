@@ -8,10 +8,7 @@ from BeautifulSoup import BeautifulSoup
 
 ROOT = sys.argv[1]
 
-POST_PATS = [ 'http://sandiego.craigslist.org/.*/[0-9]*.html'
-            , 'http://charlotte.craigslist.org/.*/[0-9]*.html'
-            , 'http://orlando.craigslist.org/.*/[0-9]*.html'
-            ]
+POST_PAT = 'http://.*\.craigslist\.org/.*/[0-9]*\.html'
 
 def main():
   # fetch ROOT
@@ -30,10 +27,8 @@ def extract_posts(html):
   links = extract_links(html)
   posts = []
   for link in links:
-    for pat in POST_PATS:
-      if re.match(pat, link):
-        posts.append(link)
-        break
+    if re.match(POST_PAT, link):
+      posts.append(link)
   return posts
 
 def extract_links(html):
