@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-cd scrapes/
+cd /home/ztatlock/cloth/scrapes/
 
 for r in $(cat ../roots.txt); do
   echo ">>> $r"

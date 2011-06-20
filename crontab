@@ -1,0 +1,5 @@
+PATH    = '/home/ztatlock/cloth:/home/ztatlock/bin:/usr/bin:/bin'
+MAILTO  = 'ztatlock@gmail.com'
+
+13 * * * * /home/ztatlock/cloth/run.sh
+
