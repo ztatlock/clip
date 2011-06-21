@@ -26,6 +26,7 @@ POST = '^http://.*\.craigslist\.org/.*/[0-9]*\.html$'
 SEEN = None
 
 def main():
+  os.chdir('/home/ztatlock/cloth')
   init()
   for r in ROOT:
     crawlRoot(r)
