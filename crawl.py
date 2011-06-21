@@ -3,26 +3,11 @@
 import re, sys, os, os.path, shlex, subprocess, time
 from BeautifulSoup import BeautifulSoup
 
-ROOT = [ 'http://sandiego.craigslist.org/cas/'
-       , 'http://sandiego.craigslist.org/msr/'
-       , 'http://sandiego.craigslist.org/m4m/'
-       , 'http://sandiego.craigslist.org/m4w/'
-       , 'http://sandiego.craigslist.org/w4m/'
-       , 'http://sandiego.craigslist.org/w4w/'
-       , 'http://charlotte.craigslist.org/cas/'
-       , 'http://charlotte.craigslist.org/msr/'
-       , 'http://charlotte.craigslist.org/m4m/'
-       , 'http://charlotte.craigslist.org/m4w/'
-       , 'http://charlotte.craigslist.org/w4m/'
-       , 'http://charlotte.craigslist.org/w4w/'
-       , 'http://orlando.craigslist.org/cas/'
-       , 'http://orlando.craigslist.org/msr/'
-       , 'http://orlando.craigslist.org/m4m/'
-       , 'http://orlando.craigslist.org/m4w/'
-       , 'http://orlando.craigslist.org/w4m/'
-       , 'http://orlando.craigslist.org/w4w/'
-       ] 
+CITY = ['sandiego', 'charlotte', 'orlando']
+CATG = ['cas', 'msr', 'm4m', 'm4w', 'w4m', 'w4w']
 POST = '^http://.*\.craigslist\.org/.*/[0-9]*\.html$'
+
+ROOT = None
 SEEN = None
 LOG  = None
 
@@ -34,13 +19,21 @@ def main():
   fin()
 
 def init():
-  global SEEN, LOG
+  global ROOT, SEEN, LOG
+  # compute roots
+  ROOT = []
+  for city in CITY:
+    for catg in CATG:
+      r = 'http://%s.craigslist.org/%s/' % (city, catg)
+      ROOT.append(r)
+  # determine already seen posts
   SEEN = []
   for (root, dirs, files) in os.walk('.'):
     for f in files:
       if f.endswith('.html'):
         SEEN.append(postId(f))
   SEEN.sort()
+  # set up log
   if not os.path.isdir('log'):
     os.mkdir('log')
   i = 0
