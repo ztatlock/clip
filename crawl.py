@@ -53,7 +53,7 @@ def init():
   log('BEGIN : %s' % now())
 
 def fin():
-  log('END : %s' % now())
+  log('\n\nEND : %s' % now())
   LOG.close()
 
 def crawlRoot(r):
@@ -113,7 +113,7 @@ def log(msg):
   LOG.write(msg + '\n')
 
 def now():
-  return time.strftime('%A, %B %d, %Y at %I:%M %p')
+  return time.strftime('%A, %B %d, %Y at %I:%M:%S %p')
 
 main()
 
