@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import re, sys, os, os.path, shlex, subprocess
+import re, sys, os, os.path, shlex, subprocess, time
 from BeautifulSoup import BeautifulSoup
 
 ROOT = [ 'http://sandiego.craigslist.org/cas/'
@@ -24,30 +24,62 @@ ROOT = [ 'http://sandiego.craigslist.org/cas/'
        ] 
 POST = '^http://.*\.craigslist\.org/.*/[0-9]*\.html$'
 SEEN = None
+LOG  = None
 
 def main():
   os.chdir('/home/ztatlock/cloth')
   init()
   for r in ROOT:
     crawlRoot(r)
+  fin()
 
 def init():
-  global SEEN
+  global SEEN, LOG
   SEEN = []
   for (root, dirs, files) in os.walk('.'):
     for f in files:
       if f.endswith('.html'):
         SEEN.append(postId(f))
   SEEN.sort()
+  if not os.path.isdir('log'):
+    os.mkdir('log')
+  i = 0
+  l = 'log/log-%04d.txt' % i
+  while os.path.exists(l):
+    i += 1
+    l = 'log/log-%04d.txt' % i
+  # LOG must be unbuffered
+  LOG = open(l, 'w', 0)
+  log('BEGIN : %s' % now())
+
+def fin():
+  log('END : %s' % now())
+  LOG.close()
 
 def crawlRoot(r):
+  log('\n\n>>> CRAWL ROOT %s' % r)
   cmd('wget --output-document=root.html --no-verbose %s' % r)
+
   sp = getSoup('root.html')
+  log('\n>> PRETTY ROOT HTML')
+  log(sp.prettify())
+
   ps = posts(sp)
-  ps = newPosts(ps)
-  for p in ps:
+  log('\n>> POSTS (%d)' % len(ps))
+  log('\n'.join(ps))
+
+  nps = newPosts(ps)
+  log('\n>> NEW POSTS (%d)' % len(nps))
+  log('\n'.join(nps))
+
+  # todo send warning email if len(nps) > 100
+
+  log('\n>> FETCHING NEW POSTS')
+  for p in nps:
     cmd('wget --force-directories --no-verbose %s' % str(p))
+
   cmd('rm root.html')
+  log('\n>>> FINISHED ROOT %s' % r)
 
 def getSoup(html):
   f = open(html, 'r')
@@ -73,9 +105,15 @@ def postId(p):
   return p[-15:-5]
 
 def cmd(c):
-  r = subprocess.call(shlex.split(c))
+  r = subprocess.call(shlex.split(c), stdout=LOG, stderr=LOG)
   if r != 0:
     print 'Warning: command failed!\n\t%s' % c
+
+def log(msg):
+  LOG.write(msg + '\n')
+
+def now():
+  return time.strftime('%A, %B %d, %Y at %I:%M %p')
 
 main()
 
