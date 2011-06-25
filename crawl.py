@@ -3,7 +3,7 @@
 import re, sys, os, os.path, shlex, subprocess, time
 from BeautifulSoup import BeautifulSoup
 
-CITY = ['sandiego', 'charlotte', 'orlando']
+CITY = ['charlotte', 'tampa', 'minneapolis', 'denver', 'portland', 'cincinnati']
 CATG = ['cas', 'msr', 'm4m', 'm4w', 'w4m', 'w4w']
 POST = '^http://.*\.craigslist\.org/.*/[0-9]*\.html$'
 
