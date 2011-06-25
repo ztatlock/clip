@@ -3,7 +3,7 @@
 import re, sys, os, os.path, shlex, subprocess, time
 from BeautifulSoup import BeautifulSoup
 
-CITY = ['charlotte', 'tampa', 'minneapolis', 'denver', 'portland', 'cincinnati']
+CITY = ['charlotte', 'denver', 'portland', 'tampa', 'minneapolis', 'stlouis']
 CATG = ['cas', 'msr', 'm4m', 'm4w', 'w4m', 'w4w']
 POST = '^http://.*\.craigslist\.org/.*/[0-9]*\.html$'
 
@@ -37,10 +37,10 @@ def init():
   if not os.path.isdir('log'):
     os.mkdir('log')
   i = 0
-  l = 'log/log-%04d.txt' % i
+  l = 'log/crawl-%04d.txt' % i
   while os.path.exists(l):
     i += 1
-    l = 'log/log-%04d.txt' % i
+    l = 'log/crawl-%04d.txt' % i
   # LOG must be unbuffered
   LOG = open(l, 'w', 0)
   log('BEGIN : %s' % now())
