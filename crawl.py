@@ -27,12 +27,11 @@ def init():
       r = 'http://%s.craigslist.org/%s/' % (city, catg)
       ROOT.append(r)
   # determine already seen posts
-  SEEN = []
+  SEEN = set()
   for (root, dirs, files) in os.walk('.'):
     for f in files:
       if f.endswith('.html'):
-        SEEN.append(postId(f))
-  SEEN.sort()
+        SEEN.add(postId(f))
   # set up log
   if not os.path.isdir('log'):
     os.mkdir('log')
@@ -90,7 +89,7 @@ def posts(soup):
 def newPosts(ps):
   nps = []
   for p in ps:
-    if not (postId(p) in SEEN):
+    if postId(p) not in SEEN:
       nps.append(p)
   return nps
 
