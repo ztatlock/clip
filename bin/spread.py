@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
-import os, os.path, re, time
+import os, os.path, re
+from common import *
 
 FIELDS = 'city catg post year month day hour minute ampm tzone'
-LOG    = None
 
 def main():
-  init()
+  openLog('spread')
   ps = []
   for p in lsPosts():
     p = Post(p)
@@ -15,25 +15,7 @@ def main():
     if not p.deleted:
       ps.append(p)
   writeCsv(ps)
-  fin()
-
-def init():
-  global LOG
-  # set up log
-  if not os.path.isdir('log'):
-    os.mkdir('log')
-  i = 0
-  l = 'log/spread-%04d.txt' % i
-  while os.path.exists(l):
-    i += 1
-    l = 'log/spread-%04d.txt' % i
-  # LOG must be unbuffered
-  LOG = open(l, 'w', 0)
-  log('BEGIN : %s' % now())
-
-def fin():
-  log('\n\nEND : %s' % now())
-  LOG.close()
+  closeLog()
 
 def lsPosts():
   posts = []  
@@ -100,17 +82,5 @@ class Post:
   def csv(self):
     return ', '.join(self.vals())
 
-def now():
-  return time.strftime('%A, %B %d, %Y at %I:%M:%S %p')
-
-def log(msg):
-  LOG.write(msg + '\n')
-
-def warn(msg):
-  LOG.write('Warning: %s\n' % msg)
-
 main()
-
-#import cProfile
-#cProfile.run('main()')
 

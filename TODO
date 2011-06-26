@@ -1,3 +1,2 @@
-factor common code out
 send data / csv to central machine
-keep data in a data/ dir
+parse args for crawl

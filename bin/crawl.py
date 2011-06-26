@@ -1,24 +1,24 @@
 #!/usr/bin/env python
 
-import re, sys, os, os.path, shlex, subprocess, time
+import os, os.path, re
 from BeautifulSoup import BeautifulSoup
+from common import *
 
 CITY = ['charlotte', 'denver', 'portland', 'tampa', 'minneapolis', 'stlouis']
 CATG = ['cas', 'msr', 'm4m', 'm4w', 'w4m', 'w4w']
-POST = '^http://.*\.craigslist\.org/.*/[0-9]*\.html$'
 
 ROOT = None
 SEEN = None
-LOG  = None
 
 def main():
   init()
+  openLog('crawl')
   for r in ROOT:
     crawlRoot(r)
-  fin()
+  closeLog()
 
 def init():
-  global ROOT, SEEN, LOG
+  global ROOT, SEEN
   # compute roots
   ROOT = []
   for city in CITY:
@@ -31,46 +31,31 @@ def init():
     for f in files:
       if f.endswith('.html'):
         SEEN.add(postId(f))
-  # set up log
-  if not os.path.isdir('log'):
-    os.mkdir('log')
-  i = 0
-  l = 'log/crawl-%04d.txt' % i
-  while os.path.exists(l):
-    i += 1
-    l = 'log/crawl-%04d.txt' % i
-  # LOG must be unbuffered
-  LOG = open(l, 'w', 0)
-  log('BEGIN : %s' % now())
-
-def fin():
-  log('\n\nEND : %s' % now())
-  LOG.close()
 
 def crawlRoot(r):
-  log('\n\n>>> CRAWL ROOT %s' % r)
+  log('> CRAWL ROOT %s' % r)
   cmd('wget --output-document=root.html --no-verbose %s' % r)
 
   sp = getSoup('root.html')
-  log('\n>> PRETTY ROOT HTML')
+  log('>> PRETTY ROOT HTML')
   log(sp.prettify())
 
   ps = posts(sp)
-  log('\n>> POSTS (%d)' % len(ps))
+  log('>> POSTS (%d)' % len(ps))
   log('\n'.join(ps))
 
   nps = newPosts(ps)
-  log('\n>> NEW POSTS (%d)' % len(nps))
+  log('>> NEW POSTS (%d)' % len(nps))
   log('\n'.join(nps))
 
   # todo send warning email if len(nps) > 100
 
-  log('\n>> FETCHING NEW POSTS')
+  log('>> FETCHING NEW POSTS')
   for p in nps:
     cmd('wget --force-directories --no-verbose %s' % str(p))
 
   cmd('rm root.html')
-  log('\n>>> FINISHED ROOT %s' % r)
+  log('> FINISH ROOT %s' % r)
 
 def getSoup(html):
   f = open(html, 'r')
@@ -79,6 +64,7 @@ def getSoup(html):
   return BeautifulSoup(s)
 
 def posts(soup):
+  POST = '^http://.*\.craigslist\.org/.*/[0-9]*\.html$'
   ps = []
   for tag in soup.findAll('a', href=True):
     if re.match(POST, tag['href']):
@@ -95,19 +81,5 @@ def newPosts(ps):
 def postId(p):
   return p[-15:-5]
 
-def cmd(c):
-  r = subprocess.call(shlex.split(c), stdout=LOG, stderr=LOG)
-  if r != 0:
-    print 'Warning: command failed!\n\t%s' % c
-
-def log(msg):
-  LOG.write(msg + '\n')
-
-def now():
-  return time.strftime('%A, %B %d, %Y at %I:%M:%S %p')
-
 main()
-
-#import cProfile
-#cProfile.run('main()')
 
