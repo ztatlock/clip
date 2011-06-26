@@ -12,7 +12,6 @@ SEEN = None
 LOG  = None
 
 def main():
-  os.chdir('/home/ztatlock/cloth')
   init()
   for r in ROOT:
     crawlRoot(r)

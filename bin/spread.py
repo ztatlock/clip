@@ -6,7 +6,6 @@ FIELDS = 'city catg post year month day hour minute ampm tzone'
 LOG    = None
 
 def main():
-  os.chdir('/home/ztatlock/cloth')
   init()
   ps = []
   for p in lsPosts():

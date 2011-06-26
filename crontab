@@ -1,5 +1,5 @@
-PATH   = '/home/ztatlock/cloth:/home/ztatlock/bin:/usr/bin:/bin'
+PATH   = '/home/ztatlock/cloth/bin:/home/ztatlock/bin:/usr/bin:/bin'
 MAILTO = 'ztatlock@gmail.com'
 
-19 * * * * /home/ztatlock/cloth/crawl.py
+19 * * * * /home/ztatlock/cloth/run.sh
 
