@@ -1,17 +1,19 @@
 #!/usr/bin/env python
 
-import argparse, os, re
+import argparse, os, re, random, time
 from BeautifulSoup import BeautifulSoup
 from common import *
 
 def main():
   cl = parseCmdLn()
   rs = mkRoots(cl.city, cl.catg)
-  lsSeen()
-  openLog('crawl')
-  for r in rs:
-    crawlRoot(r)
-  closeLog()
+  while True:
+    lsSeen()
+    openLog('crawl')
+    for r in rs:
+      crawlRoot(r)
+    closeLog()
+    nap(cl.minWait, cl.maxWait)
 
 def parseCmdLn():
   d = 'Sample craigslist posts from select cities in select categories.'
@@ -28,6 +30,18 @@ def parseCmdLn():
                   , metavar = 'CG'
                   , help    = 'which categories to sample from'
                   )
+  clp.add_argument( '--minWait'
+                  , metavar = 'm'
+                  , default = 60
+                  , type    = int
+                  , help    = 'minimum minutes to wait between samples'
+                  )
+  clp.add_argument( '--maxWait'
+                  , metavar = 'm'
+                  , default = 60
+                  , type    = int
+                  , help    = 'maximum minutes to wait between samples'
+                  )
   return clp.parse_args()
 
 def mkRoots(city, catg):
@@ -37,6 +51,10 @@ def mkRoots(city, catg):
       r = 'http://%s.craigslist.org/%s/' % (cy, cg)
       rs.append(r)
   return rs
+
+def nap(lo, hi):
+  dur = random.randrange(lo, hi+1) * 60
+  time.sleep(dur)
 
 def lsSeen():
   global SEEN
@@ -62,7 +80,8 @@ def crawlRoot(r):
   log('>> NEW POSTS (%d)' % len(nps))
   log('\n'.join(nps))
 
-  # todo send warning email if len(nps) > 100
+  if len(nps) >= 95:
+    warn('MISSING SOME POSTS!')
 
   log('>> FETCHING NEW POSTS')
   for p in nps:
