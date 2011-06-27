@@ -11,21 +11,23 @@ ROOT = None
 SEEN = None
 
 def main():
-  init()
+  lsRoot()
+  lsSeen()
   openLog('crawl')
   for r in ROOT:
     crawlRoot(r)
   closeLog()
 
-def init():
-  global ROOT, SEEN
-  # compute roots
+def lsRoot():
+  global ROOT
   ROOT = []
   for city in CITY:
     for catg in CATG:
       r = 'http://%s.craigslist.org/%s/' % (city, catg)
       ROOT.append(r)
-  # determine already seen posts
+
+def lsSeen():
+  global SEEN
   SEEN = set()
   for (root, dirs, files) in os.walk('.'):
     for f in files:
