@@ -1,30 +1,42 @@
 #!/usr/bin/env python
 
-import os, os.path, re
+import argparse, os, re
 from BeautifulSoup import BeautifulSoup
 from common import *
 
-CITY = ['charlotte', 'denver', 'portland', 'tampa', 'minneapolis', 'stlouis']
-CATG = ['cas', 'msr', 'm4m', 'm4w', 'w4m', 'w4w']
-
-ROOT = None
-SEEN = None
-
 def main():
-  lsRoot()
+  cl = parseCmdLn()
+  rs = mkRoots(cl.city, cl.catg)
   lsSeen()
   openLog('crawl')
-  for r in ROOT:
+  for r in rs:
     crawlRoot(r)
   closeLog()
 
-def lsRoot():
-  global ROOT
-  ROOT = []
-  for city in CITY:
-    for catg in CATG:
-      r = 'http://%s.craigslist.org/%s/' % (city, catg)
-      ROOT.append(r)
+def parseCmdLn():
+  d = 'Sample craigslist posts from select cities in select categories.'
+  clp = argparse.ArgumentParser(description = d)
+  clp.add_argument( '--city'
+                  , default = []
+                  , nargs   = '+'
+                  , metavar = 'CY'
+                  , help    = 'which cities to sample from'
+                  )
+  clp.add_argument( '--catg'
+                  , default = []
+                  , nargs   = '+'
+                  , metavar = 'CG'
+                  , help    = 'which categories to sample from'
+                  )
+  return clp.parse_args()
+
+def mkRoots(city, catg):
+  rs = []
+  for cy in city:
+    for cg in catg:
+      r = 'http://%s.craigslist.org/%s/' % (cy, cg)
+      rs.append(r)
+  return rs
 
 def lsSeen():
   global SEEN
