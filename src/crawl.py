@@ -8,12 +8,12 @@ def main():
   cl = parseCmdLn()
   rs = mkRoots(cl.city, cl.catg)
   while True:
+    nap(cl.minWait, cl.maxWait)
     lsSeen()
     openLog('crawl')
     for r in rs:
       crawlRoot(r)
     closeLog()
-    nap(cl.minWait, cl.maxWait)
 
 def parseCmdLn():
   d = 'Sample craigslist posts from select cities in select categories.'
