@@ -6,14 +6,15 @@ from common import *
 
 def main():
   cl = parseCmdLn()
-  rs = mkRoots(cl.city, cl.catg)
   while True:
-    nap(cl.minWait, cl.maxWait)
-    lsSeen()
-    openLog('crawl')
-    for r in rs:
-      crawlRoot(r)
-    closeLog()
+    t0 = time.time()
+    crawl(cl.city, cl.catg)
+    t1 = time.time()
+    nap(cl.minWait, cl.maxWait, t1 - t0)
+
+def nap(lo, hi, adjust):
+  s = random.randrange(lo, hi+1) * 60 - adjust
+  time.sleep(s)
 
 def parseCmdLn():
   d = 'Sample craigslist posts from select cities in select categories.'
@@ -44,17 +45,14 @@ def parseCmdLn():
                   )
   return clp.parse_args()
 
-def mkRoots(city, catg):
-  rs = []
-  for cy in city:
-    for cg in catg:
+def crawl(cities, categories):
+  lsSeen()
+  openLog('crawl')
+  for cy in cities:
+    for cg in categories:
       r = 'http://%s.craigslist.org/%s/' % (cy, cg)
-      rs.append(r)
-  return rs
-
-def nap(lo, hi):
-  dur = random.randrange(lo, hi+1) * 60
-  time.sleep(dur)
+      crawlRoot(r)
+  closeLog()
 
 def lsSeen():
   global SEEN
