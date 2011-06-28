@@ -12,8 +12,6 @@ function running {
 
 function alarm {
   sendmail ztatlock@gmail.com <<EOF
-To: ztatlock@gmail.com
-From: ztatlock@gmail.com
 Subject: HEADS UP! clipper not running
 
 $(date)
