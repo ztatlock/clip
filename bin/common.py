@@ -5,11 +5,9 @@ def openLog(nm):
   global LOG
   if not os.path.isdir('log'):
     os.mkdir('log')
-  i = 0
-  l = 'log/%s-%04d.txt' % (nm, i)
-  while os.path.exists(l):
-    i += 1
-    l = 'log/%s-%04d.txt' % (nm, i)
+  d = time.strftime('%y-%m-%d')
+  t = time.strftime('%H-%M-%S')
+  l = 'log/%s_%s_%s.txt' % (nm, d, t) 
   LOG = open(l, 'w', 0) # unbuffered
   log(now())
 
