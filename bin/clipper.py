@@ -6,26 +6,28 @@ from common import *
 
 def main():
   cl = parseCmdLn()
+  os.chdir(cl.data)
   while True:
     t0 = time.time()
-    crawl(cl.city, cl.catg)
+    crawl(cl.cities, cl.catgs)
     t1 = time.time()
     nap(cl.minWait, cl.maxWait, t1 - t0)
 
-def nap(lo, hi, adjust):
-  s = random.randrange(lo, hi+1) * 60 - adjust
-  time.sleep(s)
-
 def parseCmdLn():
-  d = 'Sample craigslist posts from select cities in select categories.'
+  d = 'Repeatedly sample craigslist in select cities and categories.'
   clp = argparse.ArgumentParser(description = d)
-  clp.add_argument( '--city'
+  clp.add_argument( '--data'
+                  , default = '.'
+                  , metavar = 'D'
+                  , help    = 'where to save posts'
+                  )
+  clp.add_argument( '--cities'
                   , default = []
                   , nargs   = '+'
                   , metavar = 'CY'
                   , help    = 'which cities to sample from'
                   )
-  clp.add_argument( '--catg'
+  clp.add_argument( '--catgs'
                   , default = []
                   , nargs   = '+'
                   , metavar = 'CG'
@@ -45,11 +47,15 @@ def parseCmdLn():
                   )
   return clp.parse_args()
 
-def crawl(cities, categories):
+def nap(lo, hi, adjust):
+  s = random.randrange(lo, hi+1) * 60 - adjust
+  time.sleep(s)
+
+def crawl(cities, catgs):
   lsSeen()
   openLog('crawl')
   for cy in cities:
-    for cg in categories:
+    for cg in catgs:
       r = 'http://%s.craigslist.org/%s/' % (cy, cg)
       crawlRoot(r)
   closeLog()
@@ -63,30 +69,30 @@ def lsSeen():
         SEEN.add(postId(f))
 
 def crawlRoot(r):
-  log('> CRAWL ROOT %s' % r)
+  log('>>> begin crawling %s' % r)
   cmd('wget --output-document=root.html --no-verbose %s' % r)
 
   sp = getSoup('root.html')
-  log('>> PRETTY ROOT HTML')
+  log('>>> pretty printed html')
   log(sp.prettify())
 
   ps = posts(sp)
-  log('>> POSTS (%d)' % len(ps))
+  log('>>> all posts (%d)' % len(ps))
   log('\n'.join(ps))
 
-  nps = newPosts(ps)
-  log('>> NEW POSTS (%d)' % len(nps))
-  log('\n'.join(nps))
+  ps = newPosts(ps)
+  log('>>> new posts (%d)' % len(ps))
+  log('\n'.join(ps))
 
-  if len(nps) >= 95:
-    warn('MISSING SOME POSTS!')
+  if len(ps) >= 95:
+    warn('PROBABLY MISSING SOME POSTS!')
 
-  log('>> FETCHING NEW POSTS')
-  for p in nps:
+  log('>>> fetching new posts')
+  for p in ps:
     cmd('wget --force-directories --no-verbose %s' % str(p))
 
   cmd('rm root.html')
-  log('> FINISH ROOT %s' % r)
+  log('>>> end crawling %s' % r)
 
 def getSoup(html):
   f = open(html, 'r')
