@@ -13,6 +13,7 @@ def main():
     if not p.deleted:
       ps.append(p)
   writeCsv(ps)
+  writeJson(ps)
 
 def lsPosts():
   posts = []  
@@ -28,6 +29,19 @@ def writeCsv(posts):
   f.write('%s\n' % FIELDS.replace(' ', ', '))
   for p in posts:
     f.write(p.csv() + '\n')
+  f.close()
+
+def writeJson(posts):
+  f = open('posts.js', 'w')
+  f.write('POSTS = [\n')
+  first = True
+  for p in posts:
+    if first:
+      first = False
+    else:
+      f.write(',')
+    f.write(p.json())
+  f.write('];')
   f.close()
 
 class Post:
@@ -78,6 +92,9 @@ class Post:
 
   def csv(self):
     return ', '.join(self.vals())
+
+  def json(self):
+    return 'TODO'
 
 def warn(msg):
   sys.stdout.write('Warning: %s\n' % msg)

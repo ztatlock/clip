@@ -6,7 +6,8 @@ DATA="$ROOT/data"
 
 function main {
   cd $DATA
-  spread.py
+  parser.py
+  cp ../www/* .
 }
 
 l="analysis-$(date "+%y%m%d-%H%M%S").txt"
