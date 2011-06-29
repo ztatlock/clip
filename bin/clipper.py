@@ -90,7 +90,7 @@ def postId(p):
 
 def openLog():
   global LOG
-  l = time.strftime('log/clipper_%y-%m-%d_%H-%M-%S.txt')
+  l = time.strftime('log/clipper-%y%m%d-%H%M%S.txt')
   LOG = open(l, 'w', 0) # unbuffered
   log(now())
 

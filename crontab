@@ -1,4 +1,4 @@
-PATH = '/usr/bin:/bin'
+PATH = '/home/ztatlock/cloth/bin:/usr/bin:/bin'
 
-0 * * * * /home/ztatlock/cloth/bin/watchdog.sh
-0 0 * * * /home/ztatlock/cloth/bin/daily.sh
+0 * * * * watchdog.sh
+0 0 * * * analysis.sh

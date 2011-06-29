@@ -16,10 +16,10 @@ function running {
 
 function start {
   cd $DATA
-  $CLIP >> $DATA/log/watchdog_$(date "+%y-%m-%d_%H-%M-%S").txt 2>&1 &
+  l="watchdog-$(date "+%y%m%d-%H%M%S").txt"
+  $CLIP &> $DATA/log/$l &
 }
 
 if ! running; then
   start
 fi
-
