@@ -79,8 +79,8 @@ class Post:
   def csv(self):
     return ', '.join(self.vals())
 
-  def warn(msg):
-    sys.stdout.write('Warning: %s\n' % msg)
+def warn(msg):
+  sys.stdout.write('Warning: %s\n' % msg)
 
 main()
 

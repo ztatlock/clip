@@ -1,4 +1,4 @@
 PATH = '/home/ztatlock/cloth/bin:/usr/bin:/bin'
 
-0 * * * * watchdog.sh
-0 0 * * * analysis.sh
+15 * * * * watchdog.sh
+45 0 * * * analysis.sh

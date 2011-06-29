@@ -16,6 +16,7 @@ function running {
 
 function start {
   cd $DATA
+  # capture any error output
   l="watchdog-$(date "+%y%m%d-%H%M%S").txt"
   $CLIP &> $DATA/log/$l &
 }
@@ -23,3 +24,4 @@ function start {
 if ! running; then
   start
 fi
+date > $DATA/log/last-watchdog-run.txt
