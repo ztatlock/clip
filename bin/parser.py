@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-import os, os.path, sys, re
+import os, os.path, sys, re, time
 
-FIELDS = 'city catg post year month day hour minute ampm tzone'
+FIELDS = 'city catg post year month day hour minute ampm tzone tfhour dow'
 
 def main():
   ps = []
@@ -10,8 +10,10 @@ def main():
     p = Post(p)
     p.parsePath()
     p.parsePost()
-    if not p.deleted:
-      ps.append(p)
+    if p.deleted:
+      continue
+    p.extras()
+    ps.append(p)
   writeCsv(ps)
   writeJson(ps)
 
@@ -19,7 +21,7 @@ def lsPosts():
   posts = []  
   for (root, dirs, files) in os.walk('.'):
     for f in files:
-      if f.endswith('.html'):
+      if 'craigslist' in root and f.endswith('.html'):
         posts.append(os.path.join(root, f))
   posts.sort()
   return posts
@@ -33,7 +35,7 @@ def writeCsv(posts):
 
 def writeJson(posts):
   f = open('posts.js', 'w')
-  f.write('POSTS = [\n')
+  f.write('POSTS = [')
   first = True
   for p in posts:
     if first:
@@ -52,12 +54,13 @@ class Post:
     #           city                      area      catg        post
     POST = '^.*/([a-z]*)\.craigslist\.org/([a-z]*/)?([a-z0-9]*)/([0-9]*)\.html$'
     m = re.match(POST, self.path)
-    if m:
+    if m != None:
       self.city = m.group(1)
       self.catg = m.group(3)
       self.post = m.group(4)
     else:
-      warn('parsePath, match failed on "%s"' % self.path)
+      warn('failed to parse path %s' % self.path)
+      self.deleted = True
 
   def parsePost(self):
     f = open(self.path, 'r')
@@ -66,14 +69,15 @@ class Post:
     # has this post been removed?
     self.deleted = False
     DELT = 'This posting has (expired|been flagged for removal|been deleted by its author)\.'
-    if re.search(DELT, p):
+    if re.search(DELT, p) != None:
+      warn('no content in %s' % self.path)
       self.deleted = True
       return
     # extract date and time
-    #             year       month      day         hour        min       ampm    zone
+    #             year       month      day         hour        min       ampm    tzone
     DTTM = 'Date: ([0-9]{4})-([0-9]{2})-([0-9]{2}), ([ 1][0-9]):([0-9]{2})(AM|PM) ([A-Z]{3})'
     m = re.search(DTTM, p)
-    if m:
+    if m != None:
       self.year   = m.group(1)
       self.month  = m.group(2)
       self.day    = m.group(3)
@@ -82,7 +86,18 @@ class Post:
       self.ampm   = m.group(6)
       self.tzone  = m.group(7)
     else:
-      warn('parsePost, date/time search failed in "%s"' % self.path)
+      warn('no date/time in %s' % self.path)
+      self.deleted = True
+      return
+
+  def extras(self):
+    if self.ampm == "AM":
+      self.tfhour = self.hour
+    else:
+      self.tfhour = str(12 + int(self.hour))
+    t = time.strptime( '%s %s %s' % (self.year, self.month, self.day)
+                     , '%Y %m %d')
+    self.dow = time.strftime('%a', t)
 
   def vals(self):
     vs = []
@@ -94,10 +109,37 @@ class Post:
     return ', '.join(self.vals())
 
   def json(self):
-    return 'TODO'
+    return '''
+{ path   = "%s"
+, city   = "%s"
+, catg   = "%s"
+, post   = "%s"
+, year   = %s
+, month  = %s
+, day    = %s
+, hour   = %s
+, minute = %s
+, ampm   = "%s"
+, tzone  = "%s"
+, tfhour = %s
+, dow    = "%s"
+}
+''' % ( self.path
+      , self.city
+      , self.catg
+      , self.post
+      , self.year
+      , self.month
+      , self.day
+      , self.hour
+      , self.minute
+      , self.ampm
+      , self.tzone
+      , self.tfhour
+      , self.dow
+      )
 
 def warn(msg):
   sys.stdout.write('Warning: %s\n' % msg)
 
 main()
-
