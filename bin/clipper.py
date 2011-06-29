@@ -1,61 +1,31 @@
 #!/usr/bin/env python
 
-import argparse, re, random, time
+import re, random, time
 import os, os.path, shlex, subprocess
 from BeautifulSoup import BeautifulSoup
 
+# which cities and categories to sample
+CITY = 'charlotte denver portland tampa minneapolis stlouis'
+CATG = 'cas msr m4m m4w w4m w4w'
+
+# min and max minutes between samples
+MINM = 50
+MAXM = 60
+
 def main():
-  cl = parseCmdLn()
-  os.chdir(cl.data)
   while True:
     t0 = time.time()
-    crawl(cl.cities, cl.catgs)
+    crawl()
     t1 = time.time()
-    nap(cl.minWait, cl.maxWait, t1 - t0)
+    s = random.randrange(MINM, MAXM+1) * 60
+    s = s - (t1 - t0) # adjust for crawl time
+    time.sleep(s)
 
-def parseCmdLn():
-  d = 'Repeatedly sample craigslist in select cities and categories.'
-  clp = argparse.ArgumentParser(description = d)
-  clp.add_argument( '--data'
-                  , default = '.'
-                  , metavar = 'D'
-                  , help    = 'where to save posts'
-                  )
-  clp.add_argument( '--cities'
-                  , default = []
-                  , nargs   = '+'
-                  , metavar = 'CY'
-                  , help    = 'which cities to sample from'
-                  )
-  clp.add_argument( '--catgs'
-                  , default = []
-                  , nargs   = '+'
-                  , metavar = 'CG'
-                  , help    = 'which categories to sample from'
-                  )
-  clp.add_argument( '--minWait'
-                  , metavar = 'm'
-                  , default = 60
-                  , type    = int
-                  , help    = 'minimum minutes to wait between samples'
-                  )
-  clp.add_argument( '--maxWait'
-                  , metavar = 'm'
-                  , default = 60
-                  , type    = int
-                  , help    = 'maximum minutes to wait between samples'
-                  )
-  return clp.parse_args()
-
-def nap(lo, hi, adjust):
-  s = random.randrange(lo, hi+1) * 60 - adjust
-  time.sleep(s)
-
-def crawl(cities, catgs):
+def crawl():
   lsSeen()
-  openLog('crawl')
-  for cy in cities:
-    for cg in catgs:
+  openLog()
+  for cy in CITY.split():
+    for cg in CATG.split():
       r = 'http://%s.craigslist.org/%s/' % (cy, cg)
       crawlRoot(r)
   closeLog()
@@ -118,13 +88,9 @@ def newPosts(ps):
 def postId(p):
   return p[-15:-5]
 
-def openLog(nm):
+def openLog():
   global LOG
-  if not os.path.isdir('log'):
-    os.mkdir('log')
-  d = time.strftime('%y-%m-%d')
-  t = time.strftime('%H-%M-%S')
-  l = 'log/%s_%s_%s.txt' % (nm, d, t) 
+  l = time.strftime('log/clipper_%y-%m-%d_%H-%M-%S.txt')
   LOG = open(l, 'w', 0) # unbuffered
   log(now())
 

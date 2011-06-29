@@ -9,5 +9,5 @@ function main {
   spread.py
 }
 
-main >> $DATA/daily_$(date "+%y-%m-%d_%H-%M-%S")_log.txt 2>&1
+main >> $DATA/log/daily_$(date "+%y-%m-%d_%H-%M-%S").txt 2>&1
 

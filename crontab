@@ -1,4 +1,4 @@
 PATH = '/usr/bin:/bin'
 
-@reboot /home/ztatlock/cloth/bin/start.sh &> /dev/null &
-@daily  /home/ztatlock/cloth/bin/daily.sh &> /dev/null &
+0 * * * * /home/ztatlock/cloth/bin/watchdog.sh
+0 0 * * * /home/ztatlock/cloth/bin/daily.sh
