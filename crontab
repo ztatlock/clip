@@ -1,0 +1,4 @@
+PATH = '/usr/bin:/bin'
+
+@reboot /home/ztatlock/cloth/bin/start.sh &> /dev/null &
+@daily  /home/ztatlock/cloth/bin/daily.sh &> /dev/null &

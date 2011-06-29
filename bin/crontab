@@ -1,6 +1,0 @@
-PATH   = '/home/ztatlock/cloth/bin:/home/ztatlock/bin:/usr/bin:/bin'
-MAILTO = 'ztatlock@gmail.com'
-
-@reboot /home/ztatlock/cloth/bin/crawl.sh
-@daily  /home/ztatlock/cloth/bin/spread.sh 
-

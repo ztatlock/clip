@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 
-import os, os.path, re
-from common import *
+import os, os.path, sys, re
 
 FIELDS = 'city catg post year month day hour minute ampm tzone'
 
 def main():
-  openLog('spread')
   ps = []
   for p in lsPosts():
     p = Post(p)
@@ -15,7 +13,6 @@ def main():
     if not p.deleted:
       ps.append(p)
   writeCsv(ps)
-  closeLog()
 
 def lsPosts():
   posts = []  
@@ -81,6 +78,9 @@ class Post:
 
   def csv(self):
     return ', '.join(self.vals())
+
+  def warn(msg):
+    sys.stdout.write('Warning: %s\n' % msg)
 
 main()
 
