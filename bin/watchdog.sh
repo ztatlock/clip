@@ -10,7 +10,8 @@ mkdir -p $DATA/log
 function running {
   ps ax \
     | grep $CLIP \
-    | grep -v grep
+    | grep -v grep \
+    &> /dev/null
 }
 
 function start {
