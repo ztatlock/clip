@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-ROOT="/home/ztatlock/cloth"
+ROOT="/home/ztatlock/clip"
 PATH="$ROOT/bin:$PATH"
 DATA="$ROOT/data"
 

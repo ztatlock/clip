@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-ROOT="/home/ztatlock/cloth"
+ROOT="/home/ztatlock/clip"
 CLIP="$ROOT/bin/clipper.py"
 DATA="$ROOT/data"
 
