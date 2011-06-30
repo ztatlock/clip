@@ -9,7 +9,7 @@ CITY = 'charlotte denver portland tampa minneapolis stlouis'
 CATG = 'cas msr m4m m4w w4m w4w'
 
 # min and max minutes between samples
-MINM = 50
+MINM = 45
 MAXM = 60
 
 def main():
@@ -27,7 +27,9 @@ def crawl():
   for cy in CITY.split():
     for cg in CATG.split():
       r = 'http://%s.craigslist.org/%s/' % (cy, cg)
-      crawlRoot(r)
+      n = crawlRoot(r)
+      if n >= 95:
+        crawlRoot(r + 'index100.html')
   closeLog()
 
 def lsSeen():
@@ -54,15 +56,13 @@ def crawlRoot(r):
   log('>>> new posts (%d)' % len(ps))
   log('\n'.join(ps))
 
-  if len(ps) >= 95:
-    warn('PROBABLY MISSING SOME POSTS!')
-
   log('>>> fetching new posts')
   for p in ps:
     cmd('wget --force-directories --no-verbose %s' % str(p))
 
   cmd('rm root.html')
   log('>>> end crawling %s' % r)
+  return len(ps)
 
 def getSoup(html):
   f = open(html, 'r')
