@@ -8,7 +8,7 @@ function main {
   cd $DATA
   parser.py
   cp ../www/* .
-  rsync -r $DATA/ godel:/var/www/clipclop-data/
+  rsync -r $DATA/ godel:/var/www/cldata/
 }
 
 l="analysis-$(date "+%y%m%d-%H%M%S").txt"
