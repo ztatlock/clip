@@ -29,7 +29,11 @@ def crawl():
       r = 'http://%s.craigslist.org/%s/' % (cy, cg)
       n = crawlRoot(r)
       if n >= 95:
-        crawlRoot(r + 'index100.html')
+        n = crawlRoot(r + 'index100.html')
+      if n >= 95:
+        n = crawlRoot(r + 'index200.html')
+      if n >= 95:
+        warn('probably missing some posts')
   closeLog()
 
 def lsSeen():

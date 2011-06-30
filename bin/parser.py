@@ -2,7 +2,7 @@
 
 import os, os.path, sys, re, time
 
-FIELDS = 'city catg post year month day hour minute ampm tzone tfhour dow'
+FIELDS = 'city catg post date year month day hour minute ampm tzone tfhour dow'
 
 def main():
   ps = []
@@ -91,13 +91,15 @@ class Post:
       return
 
   def extras(self):
-    if self.ampm == "AM":
-      self.tfhour = self.hour
-    else:
-      self.tfhour = str(12 + int(self.hour))
-    t = time.strptime( '%s %s %s' % (self.year, self.month, self.day)
-                     , '%Y %m %d')
+    self.date = '%s%s%s' % (self.year, self.month, self.day)
+    # day of week
+    t = time.strptime(self.date, '%Y%m%d')
     self.dow = time.strftime('%a', t)
+    # twenty four hour hour
+    if self.ampm == "PM" and self.hour < 12:
+      self.tfhour = str(12 + int(self.hour))
+    else:
+      self.tfhour = self.hour
 
   def vals(self):
     vs = []
@@ -114,6 +116,7 @@ class Post:
 , city   = "%s"
 , catg   = "%s"
 , post   = "%s"
+, date   = %s
 , year   = %s
 , month  = %s
 , day    = %s
@@ -128,6 +131,7 @@ class Post:
       , self.city
       , self.catg
       , self.post
+      , self.date
       , self.year
       , self.month
       , self.day
