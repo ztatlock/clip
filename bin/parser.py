@@ -17,7 +17,7 @@ def main():
     p.extras()
     ps.append(p)
   writeCsv(ps)
-  #writeJson(ps)
+  writeJson(ps)
 
 def lsPosts():
   posts = []  

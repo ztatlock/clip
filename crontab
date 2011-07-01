@@ -1,4 +1,4 @@
 PATH = '/home/ztatlock/clip/bin:/usr/bin:/bin'
 
-15 * * * * watchdog.sh
-45 0 * * * analysis.sh
+15 *   * * * watchdog.sh
+45 */4 * * * analysis.sh
