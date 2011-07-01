@@ -1,31 +1,22 @@
 #!/usr/bin/env python
 
-import re, random, time
-import os, os.path, shlex, subprocess
+import config, re, random, time, os, os.path, shlex, subprocess
 from BeautifulSoup import BeautifulSoup
-
-# which cities and categories to sample
-CITY = 'charlotte denver portland tampa minneapolis stlouis'
-CATG = 'cas msr m4m m4w w4m w4w'
-
-# min and max minutes between samples
-MINM = 45
-MAXM = 60
 
 def main():
   while True:
     t0 = time.time()
     crawl()
     t1 = time.time()
-    s = random.randrange(MINM, MAXM+1) * 60
+    s = random.randrange(config.min_wait, config.max_wait+1) * 60
     s = s - (t1 - t0) # adjust for crawl time
     time.sleep(s)
 
 def crawl():
   lsSeen()
   openLog()
-  for cy in CITY.split():
-    for cg in CATG.split():
+  for cy in config.cities:
+    for cg in config.catgs:
       r = 'http://%s.craigslist.org/%s/' % (cy, cg)
       n = crawlRoot(r)
       if n >= 95:

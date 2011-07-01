@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os, os.path, sys, re, time
+import config, os, os.path, sys, re, time
 
 FIELDS = 'city catg post date year month day hour minute ampm tzone tfhour dow'
 
@@ -9,6 +9,8 @@ def main():
   for p in lsPosts():
     p = Post(p)
     p.parsePath()
+    if not (p.city in config.cities and p.catg in config.catgs):
+      continue
     p.parsePost()
     if p.deleted:
       continue
