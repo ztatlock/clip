@@ -6,10 +6,11 @@ posts <- read.csv('posts.csv',
                          , "integer"   # month
                          , "integer"   # day
                          , "integer"   # hour
-                         , "integer"   # minute
+                         , "integer"   # min
                          , "factor"    # ampm
                          , "factor"    # tzone
                          , "integer"   # tfhour
+                         , "character" # t
                          , "factor"    # dow
                          ))
 

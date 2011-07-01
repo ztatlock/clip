@@ -2,7 +2,7 @@
 
 import config, os, os.path, sys, re, time
 
-FIELDS = 'city catg post year month day hour minute ampm tzone tfhour dow'
+FIELDS = 'city catg post year month day hour min ampm tzone tfhour t dow'
 
 def main():
   ps = []
@@ -84,7 +84,7 @@ class Post:
       self.month  = m.group(2)
       self.day    = m.group(3)
       self.hour   = m.group(4)
-      self.minute = m.group(5)
+      self.min    = m.group(5)
       self.ampm   = m.group(6)
       self.tzone  = m.group(7)
     else:
@@ -93,15 +93,15 @@ class Post:
       return
 
   def extras(self):
-    self.date = '%s-%s-%s' % (self.year, self.month, self.day)
-    # day of week
-    t = time.strptime(self.date, '%Y-%m-%d')
-    self.dow = time.strftime('%a', t)
     # twenty four hour hour
     if self.ampm == "PM" and self.hour < 12:
       self.tfhour = str(12 + int(self.hour))
     else:
       self.tfhour = self.hour
+    # date all in one
+    self.t = '%s%s%s%s%s' % (self.year, self.month, self.day, self.tfhour, self.min)
+    # day of week
+    self.dow = time.strftime('%a', time.strptime(self.t, '%Y%m%d%H%M'))
 
   def vals(self):
     vs = []
@@ -122,10 +122,11 @@ class Post:
 , month  = %s
 , day    = %s
 , hour   = %s
-, minute = %s
+, min    = %s
 , ampm   = "%s"
 , tzone  = "%s"
 , tfhour = %s
+, t      = "%s"
 , dow    = "%s"
 }
 ''' % ( self.path
@@ -136,10 +137,11 @@ class Post:
       , self.month
       , self.day
       , self.hour
-      , self.minute
+      , self.min
       , self.ampm
       , self.tzone
       , self.tfhour
+      , self.t
       , self.dow
       )
 
