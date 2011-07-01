@@ -2,7 +2,7 @@
 
 import config, os, os.path, sys, re, time
 
-FIELDS = 'city catg post date year month day hour minute ampm tzone tfhour dow'
+FIELDS = 'city catg post year month day hour minute ampm tzone tfhour dow'
 
 def main():
   ps = []
@@ -17,7 +17,7 @@ def main():
     p.extras()
     ps.append(p)
   writeCsv(ps)
-  writeJson(ps)
+  #writeJson(ps)
 
 def lsPosts():
   posts = []  
@@ -93,9 +93,9 @@ class Post:
       return
 
   def extras(self):
-    self.date = '%s%s%s' % (self.year, self.month, self.day)
+    self.date = '%s-%s-%s' % (self.year, self.month, self.day)
     # day of week
-    t = time.strptime(self.date, '%Y%m%d')
+    t = time.strptime(self.date, '%Y-%m-%d')
     self.dow = time.strftime('%a', t)
     # twenty four hour hour
     if self.ampm == "PM" and self.hour < 12:
@@ -118,7 +118,6 @@ class Post:
 , city   = "%s"
 , catg   = "%s"
 , post   = "%s"
-, date   = %s
 , year   = %s
 , month  = %s
 , day    = %s
@@ -133,7 +132,6 @@ class Post:
       , self.city
       , self.catg
       , self.post
-      , self.date
       , self.year
       , self.month
       , self.day
