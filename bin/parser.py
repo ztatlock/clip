@@ -97,7 +97,7 @@ class Post:
     if self.ampm == "PM" and self.hour < 12:
       self.tfhour = str(12 + int(self.hour))
     else:
-      self.tfhour = self.hour
+      self.tfhour = self.hour.replace(' ', '0')
     # date all in one
     self.t = '%s%s%s%s%s' % (self.year, self.month, self.day, self.tfhour, self.min)
     # day of week
