@@ -2,14 +2,28 @@
 
 import config, os, os.path, sys, re, time
 
-FIELDS = 'city catg post year month day hour min ampm tzone tfhour t dow'
+COLS = [ 'city'
+       , 'catg'
+       , 'post'
+       , 'year'
+       , 'month'
+       , 'day'
+       , 'hour'
+       , 'min'
+       , 'ampm'
+       , 'tzone'
+       , 'tfhour'
+       , 't'
+       , 'dow'
+       ]
 
 def main():
   ps = []
   for p in lsPosts():
     p = Post(p)
     p.parsePath()
-    if not (p.city in config.cities and p.catg in config.catgs):
+    if p.city not in config.cities \
+    or p.catg not in config.catgs:
       continue
     p.parsePost()
     if p.deleted:
@@ -30,22 +44,22 @@ def lsPosts():
 
 def writeCsv(posts):
   f = open('posts.csv', 'w')
-  f.write('%s\n' % FIELDS.replace(' ', ', '))
+  f.write(','.join(COLS) + '\n')
   for p in posts:
     f.write(p.csv() + '\n')
   f.close()
 
 def writeJson(posts):
   f = open('posts.js', 'w')
-  f.write('POSTS = [')
+  f.write('POSTS = [\n')
   first = True
   for p in posts:
     if first:
       first = False
     else:
-      f.write(',')
+      f.write(',\n')
     f.write(p.json())
-  f.write('];')
+  f.write('];\n')
   f.close()
 
 class Post:
@@ -53,8 +67,8 @@ class Post:
     self.path = path
 
   def parsePath(self):
-    #           city                      area      catg        post
-    POST = '^.*/([a-z]*)\.craigslist\.org/([a-z]*/)?([a-z0-9]*)/([0-9]*)\.html$'
+    #           city                      area        catg          post
+    POST = '^.*/([a-z]*)\.craigslist\.org/([a-z]{3}/)?([a-z0-9]{3})/([0-9]{10})\.html$'
     m = re.match(POST, self.path)
     if m != None:
       self.city = m.group(1)
@@ -83,7 +97,7 @@ class Post:
       self.year   = m.group(1)
       self.month  = m.group(2)
       self.day    = m.group(3)
-      self.hour   = m.group(4)
+      self.hour   = m.group(4).strip() # may have a leading space
       self.min    = m.group(5)
       self.ampm   = m.group(6)
       self.tzone  = m.group(7)
@@ -94,56 +108,38 @@ class Post:
 
   def extras(self):
     # twenty four hour hour
-    if self.ampm == "PM" and self.hour < 12:
-      self.tfhour = str(12 + int(self.hour))
+    h = int(self.hour)
+    if self.ampm == 'AM':
+      if h == 12:
+        self.tfhour = str(0)
+      else:
+        self.tfhour = str(h)
     else:
-      self.tfhour = self.hour.replace(' ', '0')
+      if h == 12:
+        self.tfhour = str(h)
+      else:
+        self.tfhour = str(h + 12)
     # date all in one
     self.t = '%s%s%s%s%s' % (self.year, self.month, self.day, self.tfhour, self.min)
     # day of week
     self.dow = time.strftime('%a', time.strptime(self.t, '%Y%m%d%H%M'))
 
-  def vals(self):
-    vs = []
-    for f in FIELDS.split():
-      vs.append(eval('self.%s' % f))
-    return vs
+  def proj(self, field):
+    return eval('self.' + field)
+
+  def projs(self, fs):
+    return [self.proj(f) for f in fs]
+
+  def nv_projs(self, fs):
+    return [(f, self.proj(f)) for f in fs]
 
   def csv(self):
-    return ', '.join(self.vals())
+    return ','.join(self.projs(COLS))
 
   def json(self):
-    return '''
-{ path   = "%s"
-, city   = "%s"
-, catg   = "%s"
-, post   = "%s"
-, year   = %s
-, month  = %s
-, day    = %s
-, hour   = %s
-, min    = %s
-, ampm   = "%s"
-, tzone  = "%s"
-, tfhour = %s
-, t      = "%s"
-, dow    = "%s"
-}
-''' % ( self.path
-      , self.city
-      , self.catg
-      , self.post
-      , self.year
-      , self.month
-      , self.day
-      , self.hour
-      , self.min
-      , self.ampm
-      , self.tzone
-      , self.tfhour
-      , self.t
-      , self.dow
-      )
+    nvs = self.nv_projs(['path'] + COLS)
+    nvs = ['%s = "%s"' % nv for nv in nvs]
+    return '{%s}' % ', '.join(nvs)
 
 def warn(msg):
   sys.stdout.write('Warning: %s\n' % msg)
