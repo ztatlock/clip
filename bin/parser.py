@@ -14,6 +14,7 @@ COLS = [ 'city'
        , 'tzone'
        , 'tfhour'
        , 't'
+       , 'd'
        , 'dow'
        ]
 
@@ -22,11 +23,12 @@ def main():
   for p in lsPosts():
     p = Post(p)
     p.parsePath()
-    if p.city not in config.cities \
+    if p.skip \
+    or p.city not in config.cities \
     or p.catg not in config.catgs:
       continue
     p.parsePost()
-    if p.deleted:
+    if p.skip:
       continue
     p.extras()
     ps.append(p)
@@ -34,13 +36,12 @@ def main():
   writeJson(ps)
 
 def lsPosts():
-  posts = []  
+  ps = []
   for (root, dirs, files) in os.walk('.'):
     for f in files:
       if 'craigslist' in root and f.endswith('.html'):
-        posts.append(os.path.join(root, f))
-  posts.sort()
-  return posts
+        ps.append(os.path.join(root, f))
+  return ps
 
 def writeCsv(posts):
   f = open('posts.csv', 'w')
@@ -65,6 +66,7 @@ def writeJson(posts):
 class Post:
   def __init__(self, path):
     self.path = path
+    self.skip = False # used to signal anomaly
 
   def parsePath(self):
     #           city                      area        catg          post
@@ -76,53 +78,48 @@ class Post:
       self.post = m.group(4)
     else:
       warn('failed to parse path %s' % self.path)
-      self.deleted = True
+      self.skip = True
 
   def parsePost(self):
     f = open(self.path, 'r')
     p = f.read()
     f.close()
-    # has this post been removed?
-    self.deleted = False
-    DELT = 'This posting has (expired|been flagged for removal|been deleted by its author)\.'
-    if re.search(DELT, p) != None:
-      warn('no content in %s' % self.path)
-      self.deleted = True
+    DLET = 'This posting has (expired|been flagged for removal|been deleted by its author)\.'
+    if re.search(DLET, p) != None:
+      info('no content in %s' % self.path)
+      self.skip = True
       return
     # extract date and time
     #             year       month      day         hour        min       ampm    tzone
     DTTM = 'Date: ([0-9]{4})-([0-9]{2})-([0-9]{2}), ([ 1][0-9]):([0-9]{2})(AM|PM) ([A-Z]{3})'
     m = re.search(DTTM, p)
     if m != None:
-      self.year   = m.group(1)
-      self.month  = m.group(2)
-      self.day    = m.group(3)
-      self.hour   = m.group(4).strip() # may have a leading space
-      self.min    = m.group(5)
-      self.ampm   = m.group(6)
-      self.tzone  = m.group(7)
+      self.year  = m.group(1)
+      self.month = m.group(2)
+      self.day   = m.group(3)
+      self.hour  = m.group(4).strip() # may have a leading space
+      self.min   = m.group(5)
+      self.ampm  = m.group(6)
+      self.tzone = m.group(7)
     else:
       warn('no date/time in %s' % self.path)
-      self.deleted = True
+      self.skip = True
       return
 
   def extras(self):
     # twenty four hour hour
     h = int(self.hour)
     if self.ampm == 'AM':
-      if h == 12:
-        self.tfhour = str(0)
-      else:
-        self.tfhour = str(h)
+      if h == 12: self.tfhour = str(0)
+      else:       self.tfhour = str(h)
     else:
-      if h == 12:
-        self.tfhour = str(h)
-      else:
-        self.tfhour = str(h + 12)
-    # date all in one
+      if h == 12: self.tfhour = str(h)
+      else:       self.tfhour = str(h + 12)
+    # time, date all in one
     self.t = '%s%s%s%s%s' % (self.year, self.month, self.day, self.tfhour, self.min)
+    self.d = '%s%s%s'     % (self.year, self.month, self.day)
     # day of week
-    self.dow = time.strftime('%a', time.strptime(self.t, '%Y%m%d%H%M'))
+    self.dow = time.strftime('%a', time.strptime(self.d, '%Y%m%d'))
 
   def proj(self, field):
     return eval('self.' + field)
@@ -142,6 +139,9 @@ class Post:
     return '{%s}' % ', '.join(nvs)
 
 def warn(msg):
-  sys.stdout.write('Warning: %s\n' % msg)
+  sys.stderr.write('Warning: %s\n' % msg)
+
+def info(msg):
+  sys.stderr.write('HeadsUp: %s\n' % msg)
 
 main()
