@@ -18,6 +18,18 @@ COLS = [ 'city'
        , 'dow'
        ]
 
+def graph(ps):
+  dcs = [(d, len(g) for (d, g) in groupBy('d', ps).items()]
+
+def groupBy(field, posts):
+  res = {}
+  for p in posts:
+    f = p.proj(field)
+    if f not in res:
+      res[f] = []
+    res[f].append(p)
+  return res
+
 def main():
   ps = []
   for p in lsPosts():
@@ -34,6 +46,7 @@ def main():
     ps.append(p)
   writeCsv(ps)
   writeJson(ps)
+  graph(ps)
 
 def lsPosts():
   ps = []
