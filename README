@@ -1,0 +1,13 @@
+clip
+
+Dependencies
+============
+
+BeautifulSoup:
+  $ sudo apt-get install python-beautifulsoup
+
+boomslang:
+  $ sudo apt-get install python-matplotlib
+  $ cd bin
+  $ hg clone https://boomslang.googlecode.com/hg boomslang
+
