@@ -15,24 +15,37 @@ posts <- read.csv( 'posts.csv'
                                  , 'character' # dow
                                  ))
 
-# massage some columns to get nicer types
-posts$t <- strptime(posts$t, '%Y%m%d%H%M')
-posts$d <- strptime(posts$d, '%Y%m%d')
-posts$dow <- factor( posts$dow
-                   , levels = c('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
-                   , ordered = TRUE
-                   )
+# massage some columns to nicer types
+# use POSIXct since POSIXlt crashes aggregate!
+posts$t <- as.POSIXct(strptime(posts$t, '%Y%m%d%H%M'))
+posts$d <- as.POSIXct(strptime(posts$d, '%Y%m%d'))
+posts$dow <- factor(posts$dow, ordered = TRUE,
+               levels = c('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'))
 summary(posts)
 
-x <- with(posts, aggregate( post
-                          , by = list(d=d)
-                          , FUN = length
-                          ))
-summary(x)
+# date * dow * # posts
+date.count <- with(posts,
+                aggregate(post, FUN = length,
+                  by = list(d=d, dow=dow)))
+png('global-count.png')
+plot(date.count$d, date.count$x)
+dev.off()
 
-x <- with(posts, aggregate( post
-                          , by = list(dow=dow)
-                          , FUN = length
-                          ))
-summary(x)
+# dow * avg # posts
+dow.avg <- with(date.count,
+             aggregate(x, FUN = mean,
+               by = list(dow=dow)))
+png('dow-avg.png')
+barplot(dow.avg$x, names.arg = dow.avg$dow)
+dev.off()
+
+# date * city * # posts
+png('cities-count.png')
+for(cy in levels(posts$city)) {
+  aux <- subset(posts, city == cy)
+  aux <- with(aux,
+           aggregate(post, FUN = length,
+             by = list(d=d)))
+  plot(aux$d, aux$x)
+dev.off()
 
