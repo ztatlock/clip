@@ -1,6 +1,6 @@
 # which cities and categories to sample
-cities = 'charlotte denver portland tampa minneapolis stlouis'.split()
-catgs  = 'cas msr m4m m4w w4m w4w'.split()
+cities = 'denver minneapolis portland tampa stlouis charlotte'.split()
+catgs  = 'cas m4m m4w w4m w4w msr'.split()
 
 # min and max minutes between samples
 min_wait = 50
