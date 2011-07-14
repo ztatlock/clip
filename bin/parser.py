@@ -123,11 +123,12 @@ class Post:
     # twenty four hour hour
     h = int(self.hour)
     if self.ampm == 'AM':
-      if h == 12: self.tfhour = str(0)
-      else:       self.tfhour = str(h)
+      if h == 12: tfhour = 0
+      else:       tfhour = h
     else:
-      if h == 12: self.tfhour = str(h)
-      else:       self.tfhour = str(h + 12)
+      if h == 12: tfhour = h
+      else:       tfhour = h + 12
+    self.tfhour = '%02d' % tfhour
     # time, date all in one
     self.t = '%s%s%s%s%s' % (self.year, self.month, self.day, self.tfhour, self.min)
     self.d = '%s%s%s'     % (self.year, self.month, self.day)
