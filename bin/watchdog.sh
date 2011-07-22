@@ -6,6 +6,7 @@ DATA="$ROOT/data"
 
 mkdir -p $DATA
 mkdir -p $DATA/log
+mkdir -p $DATA/plot
 
 function running {
   ps ax \

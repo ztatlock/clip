@@ -14,7 +14,7 @@ class Post:
     self.doy  = int(time.strftime('%j', t))
 
 POSTS = []
-csv = open('../data/posts.csv')
+csv = open('posts.csv')
 first = True
 for l in csv:
   if first:
@@ -80,7 +80,7 @@ plot.add(l)
 plot.setXLabel('Day of Year')
 plot.setYLabel('Total Posts')
 plot.setTitle('Total Posts Across All Cities and Categories')
-plot.save('global.png')
+plot.save('plot/global.png')
 
 plot = bwPlot()
 for cy in config.cities:
@@ -90,7 +90,7 @@ plot.setXLabel('Day of Year')
 plot.setYLabel('Total Posts')
 plot.setTitle('Total Posts by City')
 plot.hasLegend()
-plot.save('bycity-all.png')
+plot.save('plot/bycity-all.png')
 
 plot = bwPlot()
 for cg in config.catgs:
@@ -100,7 +100,7 @@ plot.setXLabel('Day of Year')
 plot.setYLabel('Total Posts')
 plot.setTitle('Total Posts by Category')
 plot.hasLegend()
-plot.save('bycatg-all.png')
+plot.save('plot/bycatg-all.png')
 
 YMAX = 1250
 
@@ -114,7 +114,7 @@ for cg in config.catgs:
   plot.setTitle('Total Posts by City for %s' % lbl(cg))
   plot.setYLimits(0, YMAX)
   plot.hasLegend()
-  plot.save('bycity-%s.png' % cg)
+  plot.save('plot/bycity-%s.png' % cg)
 
 for cy in config.cities:
   plot = bwPlot()
@@ -126,5 +126,5 @@ for cy in config.cities:
   plot.setTitle('Total Posts by Category in %s' % lbl(cy))
   plot.setYLimits(0, YMAX)
   plot.hasLegend()
-  plot.save('bycatg-%s.png' % cy)
+  plot.save('plot/bycatg-%s.png' % cy)
 

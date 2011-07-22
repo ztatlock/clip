@@ -7,6 +7,7 @@ DATA="$ROOT/data"
 function main {
   cd $DATA
   parser.py
+  plotter.py
   cp ../www/* .
   rsync -r $DATA/ godel:/var/www/cldata/
 }
